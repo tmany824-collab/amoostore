@@ -720,24 +720,28 @@ function displayCustomersList(users) {
     return;
   }
 
-  const customerEmails = users.map(user => user.email || '');
-  const validEmails = customerEmails.filter(email => email && email.includes('@'));
+  // Extract valid emails for messaging
+  const validEmails = users
+    .map(user => user.email)
+    .filter(email => email && email.includes('@'));
 
   if (validEmails.length === 0) {
     list.innerHTML = '<p style="color: #999; text-align: center;">No customer emails found</p>';
     return;
   }
 
+  // Display customers with name, email, and phone
   list.innerHTML = `
     <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
-      <strong style="color: #333;">Total Customers: ${validEmails.length}</strong>
+      <strong style="color: #333;">👥 Total Customers: ${users.length}</strong>
     </div>
-    ${validEmails
+    ${users
       .map(
-        (email, index) => `
-      <div style="padding: 10px; background: white; border: 1px solid #eee; border-radius: 5px; margin-bottom: 10px; display: flex; align-items: center;">
-        <span style="color: #27ae60; margin-right: 10px;">✓</span>
-        <span style="color: #333; word-break: break-all;">${email}</span>
+        (user) => `
+      <div style="padding: 12px; background: white; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 10px;">
+        <div style="color: #333; font-weight: bold; margin-bottom: 5px;">👤 ${user.name || 'N/A'}</div>
+        <div style="color: #666; font-size: 13px; margin-bottom: 3px;">📧 ${user.email || 'N/A'}</div>
+        <div style="color: #666; font-size: 13px;">📱 ${user.phone || 'N/A'}</div>
       </div>
     `
       )
@@ -746,6 +750,7 @@ function displayCustomersList(users) {
 
   // Store emails for message sending
   window.customerEmails = validEmails;
+  console.log(`✅ Loaded ${validEmails.length} customer emails for messaging`);
 }
 
 // Handle message form submission
