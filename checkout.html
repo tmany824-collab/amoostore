@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Complete your order at AMOO STORE with checkout details and payment options." />
+  <title>AMOO STORE | Checkout</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="checkout">
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-grid"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="AMOO STORE home">
+      <span class="brand-mark">👔</span>
+      <span class="brand-text">
+        <strong>AMOO STORE</strong>
+        <small>Premium Fashion</small>
+      </span>
+    </a>
+
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="nav-links">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span class="sr-only">Open menu</span>
+    </button>
+
+    <nav class="nav" id="nav-links">
+      <a href="index.html#collections">Collections</a>
+      <a href="visit store.html">Store</a>
+      <a href="cart.html">Cart</a>
+      <a href="order.html">My Orders</a>
+      <a href="index.html#highlights" class="nav-cta">Continue shopping</a>
+    </nav>
+  </header>
+
+  <main class="page-shell" id="checkout-page">
+    <section class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">Checkout</p>
+        <h1>Confirm your order and payment preferences.</h1>
+        <p>Review your selected items, confirm your details, and choose how you want to pay.</p>
+      </div>
+
+      <div class="checkout-layout">
+        <div class="checkout-card">
+          <div class="checkout-panel">
+            <div class="section-subtitle">Your registered details</div>
+            <div class="checkout-info">
+              <div><strong>Full Name</strong><span data-checkout-name>Loading...</span></div>
+              <div><strong>Email Address</strong><span data-checkout-email>Loading...</span></div>
+              <div><strong>Account Created</strong><span data-checkout-account-status>Active</span></div>
+            </div>
+          </div>
+
+          <div class="checkout-panel">
+            <div class="section-subtitle">Selected products</div>
+            <ul class="checkout-items" data-checkout-items></ul>
+          </div>
+
+          <div class="checkout-summary-card">
+            <div class="checkout-summary-row"><span>Subtotal</span><strong data-checkout-subtotal>NGN 0</strong></div>
+            <div class="checkout-summary-row"><span>Delivery</span><strong data-checkout-delivery>NGN 0</strong></div>
+            <div class="checkout-summary-total"><span>Total</span><strong data-checkout-total>NGN 0</strong></div>
+          </div>
+        </div>
+
+        <div class="checkout-payment-card">
+          <div class="section-subtitle">Payment</div>
+          <form class="checkout-form" data-checkout-form>
+            <div class="payment-methods">
+              <label class="payment-option">
+                <input type="radio" name="payment-method" value="transfer" checked />
+                <div>
+                  <strong>Bank transfer</strong>
+                  <p>Transfer to our account and send proof after checkout.</p>
+                </div>
+              </label>
+            </div>
+
+            <div class="payment-preview" data-payment-preview aria-hidden="true" style="margin-top:12px"></div>
+
+            <div class="payment-fields">
+              <label>
+                <span>Phone or WhatsApp</span>
+                <input type="text" name="phone" placeholder="Enter your phone number" required />
+              </label>
+              <label>
+                <span>Delivery address</span>
+                <input type="text" name="address" placeholder="Enter your delivery address" required />
+              </label>
+            </div>
+
+            <div class="checkout-actions">
+              <button class="button button-primary" type="submit">Confirm order</button>
+              <a class="button button-secondary" href="cart.html">Back to cart</a>
+            </div>
+            <p class="payment-note">We accept bank transfer and card payment. After confirming your order, you will receive instructions to complete your payment.</p>
+            <div class="checkout-message" data-checkout-message></div>
+            <div class="payment-instructions" data-payment-instructions hidden></div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> AMOO STORE. Please review your payment details carefully.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

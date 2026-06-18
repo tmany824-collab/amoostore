@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AMOO STORE - Premium fashion store for men, women, couples, and children." />
+  <title>AMOO STORE | Fashion</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-grid"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#home" aria-label="AMOO STORE home">
+      <span class="brand-mark">👔</span>
+      <span class="brand-text">
+        <strong>AMOO STORE</strong>
+        <small>Premium Fashion</small>
+      </span>
+    </a>
+
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="nav-links">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span class="sr-only">Open menu</span>
+    </button>
+
+    <button class="account-button" type="button" data-account-open aria-haspopup="dialog" aria-controls="account-modal">
+      <span class="account-button-icon" aria-hidden="true">👤</span>
+      <span class="account-button-label" data-account-label>Account</span>
+    </button>
+
+    <nav class="nav" id="nav-links">
+      <a href="#collections">Collections</a>
+      <a href="#about">About</a>
+      <a href="#highlights">Highlights</a>
+      <a href="order.html">My Orders</a>
+      <a href="visit store.html" class="nav-cta">Visit Store</a>
+    </nav>
+  </header>
+
+  <main id="home">
+    <section class="hero section">
+      <div class="hero-copy">
+        <p class="eyebrow">Premium fashion for every generation</p>
+        <h1>Clothing that feels tailored, modern, and unmistakably premium.</h1>
+        <p class="hero-text">
+          Men, women, couples, and children are presented in a clean storefront that feels serious, elegant, and easy to shop.
+          The layout is designed to look like a brand built with experience.
+        </p>
+
+        <div class="hero-actions">
+          <a class="button button-primary" href="visit store.html">Shop the Store</a>
+          <a class="button button-secondary" href="#collections">Explore Collections</a>
+        </div>
+
+        <div class="hero-stats">
+          <article>
+            <strong>120+</strong>
+            <span>curated pieces</span>
+          </article>
+          <article>
+            <strong>4</strong>
+            <span>clean categories</span>
+          </article>
+          <article>
+            <strong>24/7</strong>
+            <span>order support</span>
+          </article>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-label="Fashion showcase illustration">
+        <div class="showcase-card large">
+          <img class="showcase-image showcase-main" src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1200&q=80" alt="Elegant menswear styled for a premium fashion store" loading="lazy" />
+          <img class="showcase-image showcase-small one" src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80" alt="Stylish women fashion collection" loading="lazy" />
+          <img class="showcase-image showcase-small two" src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1200&q=80" alt="Matching couple clothing set" loading="lazy" />
+          <div class="floating-tag tag-a">New arrivals</div>
+          <div class="floating-tag tag-b">Tailored</div>
+          <div class="floating-tag tag-c">Photo-ready</div>
+          <div class="floating-tag tag-d">Premium finish</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="collections" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">Collections</p>
+        <h2>Built for the way customers shop.</h2>
+        <p>
+          Every category is separated clearly so visitors can move from men, women, couple, to children without confusion.
+        </p>
+      </div>
+
+      <div class="collection-grid">
+        <article class="collection-card men" data-category="men">
+          <div class="card-image-wrap">
+            <img src="https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?auto=format&fit=crop&w=1200&q=80" alt="Men's clothing collection" loading="lazy" />
+          </div>
+          <div class="collection-content">
+            <span class="card-badge">Men</span>
+            <h3>Sharp looks with modern structure.</h3>
+            <p>Native wear and smart outfits with a clean, premium finish.</p>
+          </div>
+        </article>
+
+        <article class="collection-card women" data-category="women">
+          <div class="card-image-wrap">
+            <img src="https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=1200&q=80" alt="Women's fashion collection" loading="lazy" />
+          </div>
+          <div class="collection-content">
+            <span class="card-badge">Women</span>
+            <h3>Elegant silhouettes with refined detail.</h3>
+            <p>Comfortable and stylish fashion for work, events, and weekends.</p>
+          </div>
+        </article>
+
+        <article class="collection-card couple" data-category="couple">
+          <div class="card-image-wrap">
+            <img src="https://images.unsplash.com/photo-1503341504253-dff4815485f1?auto=format&fit=crop&w=1200&q=80" alt="Couple clothing collection" loading="lazy" />
+          </div>
+          <div class="collection-content">
+            <span class="card-badge">Couple</span>
+            <h3>Matching looks for memorable moments.</h3>
+            <p>Coordination that feels intentional, modern, and photo-ready.</p>
+          </div>
+        </article>
+
+        <article class="collection-card kids" data-category="kids">
+          <div class="card-image-wrap">
+            <img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1200&q=80" alt="Children's clothing collection" loading="lazy" />
+          </div>
+          <div class="collection-content">
+            <span class="card-badge">Kids</span>
+            <h3>Bright designs made for comfort and fun.</h3>
+            <p>Soft, playful pieces that still match the premium store identity.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="about" class="section split-layout reveal">
+      <div class="info-panel">
+        <p class="eyebrow">Why this design works</p>
+        <h2>A structured layout that feels like a real brand, not a template.</h2>
+        <p>
+          The site uses a bold hero, clean category blocks, premium contrast, and subtle motion so the business looks established and credible.
+        </p>
+      </div>
+
+      <div class="feature-stack">
+        <article class="feature-card">
+          <h3>Clear hierarchy</h3>
+          <p>Visitors immediately understand the business, categories, and the next step.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Premium atmosphere</h3>
+          <p>Layered gradients, glass panels, and intentional typography create a senior-tech feel.</p>
+        </article>
+        <article class="feature-card">
+          <h3>Mobile-ready</h3>
+          <p>The layout collapses cleanly for phones without losing polish or clarity.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="highlights" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">Highlights</p>
+        <h2>What customers notice the moment they arrive.</h2>
+      </div>
+
+      <div class="highlight-row">
+        <article class="highlight-card">
+          <span>01</span>
+          <h3>Elegant visual language</h3>
+          <p>Strong contrast, soft shadows, and refined spacing make the store look established.</p>
+        </article>
+        <article class="highlight-card">
+          <span>02</span>
+          <h3>Simple navigation</h3>
+          <p>Users can move from hero to collection to store without friction.</p>
+        </article>
+        <article class="highlight-card">
+          <span>03</span>
+          <h3>Dynamic details</h3>
+          <p>Small JS interactions keep the page feeling alive and professionally built.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="contact" class="section contact-panel reveal">
+      <div>
+        <p class="eyebrow">Contact</p>
+        <h2>Ready to make it your own?</h2>
+        <p>Replace the contact details with your phone number, WhatsApp link, and store address.</p>
+      </div>
+      <a class="button button-primary" href="visit store.html">Open Store</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> AMOO STORE. Designed to feel premium, clear, and trustworthy.</p>
+  </footer>
+
+  <div class="account-modal" id="account-modal" hidden>
+    <div class="account-modal-backdrop" data-account-close></div>
+    <div class="account-modal-panel" role="dialog" aria-modal="true" aria-labelledby="account-title">
+      <button class="account-modal-close" type="button" data-account-close aria-label="Close account form">×</button>
+
+      <div class="account-modal-header">
+        <p class="eyebrow">Account</p>
+        <h2 id="account-title">Sign in or register</h2>
+        <p data-account-greeting>Use your email and password to register, then log in any time.</p>
+      </div>
+
+      <div class="account-tabs" role="tablist" aria-label="Account forms">
+        <button class="account-tab active" type="button" data-account-tab="login">Login</button>
+        <button class="account-tab" type="button" data-account-tab="register">Register</button>
+      </div>
+
+      <form class="account-form active" data-account-form="login">
+        <label>
+          <span>Email</span>
+          <input type="email" name="email" placeholder="Enter your email" required />
+        </label>
+        <label>
+          <span>Password</span>
+          <input type="password" name="password" placeholder="Enter your password" required />
+        </label>
+        <button class="button button-primary" type="submit">Login</button>
+      </form>
+
+      <form class="account-form" data-account-form="register">
+        <label>
+          <span>Full name</span>
+          <input type="text" name="name" placeholder="Enter your full name" required />
+        </label>
+
+        <label>
+          <span>Email</span>
+          <input type="email" name="email" placeholder="Enter your email" required />
+        </label>
+
+        <label>
+          <span>Phone number</span>
+          <input type="tel" name="phone" placeholder="e.g. +2348012345678" required />
+        </label>
+
+        <label>
+          <span>Address</span>
+          <input type="text" name="address" placeholder="Street address, apt, etc." required />
+        </label>
+
+        <label>
+          <span>Country <small>(optional)</small></span>
+          <select name="country">
+            <option value="">Select country (optional)</option>
+            <option>Afghanistan</option>
+            <option>Albania</option>
+            <option>Algeria</option>
+            <option>Andorra</option>
+            <option>Angola</option>
+            <option>Antigua and Barbuda</option>
+            <option>Argentina</option>
+            <option>Armenia</option>
+            <option>Australia</option>
+            <option>Austria</option>
+            <option>Azerbaijan</option>
+            <option>Bahamas</option>
+            <option>Bahrain</option>
+            <option>Bangladesh</option>
+            <option>Barbados</option>
+            <option>Belarus</option>
+            <option>Belgium</option>
+            <option>Belize</option>
+            <option>Benin</option>
+            <option>Bhutan</option>
+            <option>Bolivia</option>
+            <option>Bosnia and Herzegovina</option>
+            <option>Botswana</option>
+            <option>Brazil</option>
+            <option>Brunei</option>
+            <option>Bulgaria</option>
+            <option>Burkina Faso</option>
+            <option>Burundi</option>
+            <option>Cabo Verde</option>
+            <option>Cambodia</option>
+            <option>Cameroon</option>
+            <option>Canada</option>
+            <option>Central African Republic</option>
+            <option>Chad</option>
+            <option>Chile</option>
+            <option>China</option>
+            <option>Colombia</option>
+            <option>Comoros</option>
+            <option>Costa Rica</option>
+            <option>Côte d'Ivoire</option>
+            <option>Croatia</option>
+            <option>Cuba</option>
+            <option>Cyprus</option>
+            <option>Czechia</option>
+            <option>DR Congo</option>
+            <option>Denmark</option>
+            <option>Djibouti</option>
+            <option>Dominica</option>
+            <option>Dominican Republic</option>
+            <option>Ecuador</option>
+            <option>Egypt</option>
+            <option>El Salvador</option>
+            <option>Equatorial Guinea</option>
+            <option>Eritrea</option>
+            <option>Estonia</option>
+            <option>Eswatini</option>
+            <option>Ethiopia</option>
+            <option>Fiji</option>
+            <option>Finland</option>
+            <option>France</option>
+            <option>Gabon</option>
+            <option>Gambia</option>
+            <option>Georgia</option>
+            <option>Germany</option>
+            <option>Ghana</option>
+            <option>Greece</option>
+            <option>Grenada</option>
+            <option>Guatemala</option>
+            <option>Guinea</option>
+            <option>Guinea-Bissau</option>
+            <option>Guyana</option>
+            <option>Haiti</option>
+            <option>Honduras</option>
+            <option>Hungary</option>
+            <option>Iceland</option>
+            <option>India</option>
+            <option>Indonesia</option>
+            <option>Iran</option>
+            <option>Iraq</option>
+            <option>Ireland</option>
+            <option>Israel</option>
+            <option>Italy</option>
+            <option>Jamaica</option>
+            <option>Japan</option>
+            <option>Jordan</option>
+            <option>Kazakhstan</option>
+            <option>Kenya</option>
+            <option>Kiribati</option>
+            <option>Kuwait</option>
+            <option>Kyrgyzstan</option>
+            <option>Laos</option>
+            <option>Latvia</option>
+            <option>Lebanon</option>
+            <option>Lesotho</option>
+            <option>Liberia</option>
+            <option>Libya</option>
+            <option>Liechtenstein</option>
+            <option>Lithuania</option>
+            <option>Luxembourg</option>
+            <option>Madagascar</option>
+            <option>Malawi</option>
+            <option>Malaysia</option>
+            <option>Maldives</option>
+            <option>Mali</option>
+            <option>Malta</option>
+            <option>Marshall Islands</option>
+            <option>Mauritania</option>
+            <option>Mauritius</option>
+            <option>Mexico</option>
+            <option>Micronesia</option>
+            <option>Moldova</option>
+            <option>Monaco</option>
+            <option>Mongolia</option>
+            <option>Montenegro</option>
+            <option>Morocco</option>
+            <option>Mozambique</option>
+            <option>Myanmar</option>
+            <option>Namibia</option>
+            <option>Nauru</option>
+            <option>Nepal</option>
+            <option>Netherlands</option>
+            <option>New Zealand</option>
+            <option>Nicaragua</option>
+            <option>Niger</option>
+            <option>Nigeria</option>
+            <option>North Korea</option>
+            <option>North Macedonia</option>
+            <option>Norway</option>
+            <option>Oman</option>
+            <option>Pakistan</option>
+            <option>Palau</option>
+            <option>Panama</option>
+            <option>Papua New Guinea</option>
+            <option>Paraguay</option>
+            <option>Peru</option>
+            <option>Philippines</option>
+            <option>Poland</option>
+            <option>Portugal</option>
+            <option>Qatar</option>
+            <option>Romania</option>
+            <option>Russia</option>
+            <option>Rwanda</option>
+            <option>Saint Kitts and Nevis</option>
+            <option>Saint Lucia</option>
+            <option>Saint Vincent and the Grenadines</option>
+            <option>Samoa</option>
+            <option>San Marino</option>
+            <option>Sao Tome and Principe</option>
+            <option>Saudi Arabia</option>
+            <option>Senegal</option>
+            <option>Serbia</option>
+            <option>Seychelles</option>
+            <option>Sierra Leone</option>
+            <option>Singapore</option>
+            <option>Slovakia</option>
+            <option>Slovenia</option>
+            <option>Solomon Islands</option>
+            <option>Somalia</option>
+            <option>South Africa</option>
+            <option>South Korea</option>
+            <option>South Sudan</option>
+            <option>Spain</option>
+            <option>Sri Lanka</option>
+            <option>Sudan</option>
+            <option>Suriname</option>
+            <option>Sweden</option>
+            <option>Switzerland</option>
+            <option>Syria</option>
+            <option>Taiwan</option>
+            <option>Tajikistan</option>
+            <option>Tanzania</option>
+            <option>Thailand</option>
+            <option>Timor-Leste</option>
+            <option>Togo</option>
+            <option>Tonga</option>
+            <option>Trinidad and Tobago</option>
+            <option>Tunisia</option>
+            <option>Turkey</option>
+            <option>Turkmenistan</option>
+            <option>Tuvalu</option>
+            <option>Uganda</option>
+            <option>Ukraine</option>
+            <option>United Arab Emirates</option>
+            <option>United Kingdom</option>
+            <option>United States</option>
+            <option>Uruguay</option>
+            <option>Uzbekistan</option>
+            <option>Vanuatu</option>
+            <option>Vatican City</option>
+            <option>Venezuela</option>
+            <option>Vietnam</option>
+            <option>Yemen</option>
+            <option>Zambia</option>
+            <option>Zimbabwe</option>
+          </select>
+        </label>
+
+        <label>
+          <span>ZIP / Postal code</span>
+          <input type="text" name="zip" placeholder="Postal / ZIP code" required />
+        </label>
+
+        <label>
+          <span>Password</span>
+          <input type="password" name="password" placeholder="Create a password" required />
+        </label>
+
+        <button class="button button-primary" type="submit">Register</button>
+      </form>
+
+      <div class="account-status" data-account-status></div>
+      <button class="account-logout" type="button" data-account-logout hidden>Logout</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

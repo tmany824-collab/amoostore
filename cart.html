@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Review items in your Amoo cart and request checkout." />
+  <title>Amoo | Cart</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="cart">
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-grid"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="Amoo home">
+      <span class="brand-mark">A</span>
+      <span class="brand-text">
+        <strong>Amoo</strong>
+        <small>Fashion</small>
+      </span>
+    </a>
+
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="nav-links">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span class="sr-only">Open menu</span>
+    </button>
+
+    <nav class="nav" id="nav-links">
+      <a href="index.html#collections">Collections</a>
+      <a href="visit store.html">Store</a>
+      <a href="order.html">My Orders</a>
+      <a href="index.html#highlights">Highlights</a>
+      <a href="visit store.html" class="nav-cta">Continue shopping</a>
+    </nav>
+  </header>
+
+  <main class="page-shell" id="cart-page">
+    <section class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">Cart</p>
+        <h1>Your selected items, ready to review.</h1>
+        <p>Check your order, adjust quantities, and request checkout from this dedicated page.</p>
+      </div>
+
+      <div class="cart-layout">
+        <div class="cart-advert reveal" aria-label="Featured product advert">
+          <p class="eyebrow">Cart spotlight</p>
+          <div class="cart-advert-media">
+            <img class="cart-advert-image" data-cart-ad-image src="" alt="Featured cloth product" loading="lazy" />
+            <span class="cart-advert-badge" data-cart-ad-badge>New drop</span>
+          </div>
+
+          <div class="cart-advert-copy">
+            <h2 data-cart-ad-title>Featured product</h2>
+            <p data-cart-ad-description>Items you add to cart appear here first, one by one. If your cart is empty, the advert shows featured products instead.</p>
+            <div class="cart-advert-meta">
+              <strong data-cart-ad-price>NGN 0</strong>
+              <span data-cart-ad-tag>Ready to wear</span>
+            </div>
+          </div>
+
+          <div class="cart-advert-dots" data-cart-ad-dots aria-label="Featured product navigation"></div>
+
+          <div class="hero-actions">
+            <a class="button button-primary" href="visit store.html">Back to store</a>
+            <a class="button button-secondary" href="shop.html">Go to shop</a>
+          </div>
+        </div>
+
+        <aside class="cart-panel" id="cart">
+          <div class="cart-header">
+            <div>
+              <p class="eyebrow">Cart</p>
+              <h3>Your selected items</h3>
+            </div>
+            <span class="cart-count" data-cart-count>0</span>
+          </div>
+
+          <p class="cart-empty" data-cart-empty>Your cart is empty. Add products from the catalog to see them here.</p>
+          <ul class="cart-list" data-cart-items></ul>
+
+          <div class="cart-summary">
+            <div class="summary-row"><span>Subtotal</span><strong data-cart-subtotal>NGN 0</strong></div>
+            <div class="summary-row"><span>Delivery</span><strong data-cart-delivery>NGN 0</strong></div>
+            <div class="summary-row"><span>Total</span><strong data-cart-total>NGN 0</strong></div>
+            <a class="button button-primary" data-checkout-link href="#">Checkout request</a>
+            <button class="clear-btn" type="button" data-clear-cart>Clear cart</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> Amoo. Review your cart and request your order in seconds.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

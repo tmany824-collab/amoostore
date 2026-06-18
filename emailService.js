@@ -1,0 +1,388 @@
+const nodemailer = require('nodemailer');
+
+// Email transporter configuration using environment variables
+const transporter = nodemailer.createTransport({
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.EMAIL_USER || 'amoostore5@gmail.com',
+    pass: process.env.EMAIL_PASSWORD || 'gslm kpik cilc btle'
+  },
+  connectionTimeout: 15000,
+  socketTimeout: 15000
+});
+
+// Test connection (non-blocking)
+setTimeout(() => {
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error('❌ Email service error:', error.message);
+    } else {
+      console.log('✅ Email service ready - using:', process.env.EMAIL_USER || 'amoostore5@gmail.com');
+    }
+  });
+}, 5000);
+
+// Email template for user registration
+function getUserRegistrationEmailTemplate(userName, userEmail) {
+  return {
+    subject: '🎉 Welcome to Amoo Store!',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+        <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h2 style="color: #333; margin-bottom: 20px;">Welcome to Amoo Store, ${userName}! 👔</h2>
+          
+          <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            Thank you for registering with us! We're excited to have you as part of our Amoo Store family.
+          </p>
+          
+          <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            Your account has been successfully created with the email address: <strong>${userEmail}</strong>
+          </p>
+          
+          <div style="background-color: #f0f0f0; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <h3 style="color: #333; margin-top: 0;">What's Next?</h3>
+            <ul style="color: #666; line-height: 1.8;">
+              <li>Browse our collection of premium clothing for men, women, couples, and kids</li>
+              <li>Enjoy exclusive deals and new arrivals</li>
+              <li>Receive updates on your orders directly to this email</li>
+              <li>Get notified about special promotions and new collections</li>
+            </ul>
+          </div>
+          
+          <p style="color: #666; font-size: 14px; margin-top: 20px;">
+            If you have any questions or need assistance, feel free to contact us.
+          </p>
+          
+          <p style="color: #999; font-size: 12px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+            This is an automated message. Please do not reply to this email. If you did not create this account, please contact us immediately.
+          </p>
+        </div>
+      </div>
+    `,
+    text: `Welcome to Amoo Store, ${userName}!\n\nThank you for registering with us! Your account has been successfully created with the email address: ${userEmail}\n\nYou will receive updates about your orders and new collections at this email address.\n\nBest regards,\nAmoo Store Team`
+  };
+}
+
+// Email template for order confirmation
+function getOrderConfirmationEmailTemplate(customerName, customerEmail, orderId, items, total, deliveryFee, subtotal) {
+  const itemsHTML = items.map(item => `
+    <tr style="border-bottom: 1px solid #eee;">
+      <td style="padding: 10px; color: #666;">
+        ${item.productImage ? `<img src="${item.productImage}" alt="${item.productName}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 5px; margin-right: 10px; display: inline-block; vertical-align: middle;">` : ''}
+        <span style="vertical-align: middle;">${item.productName}</span>
+      </td>
+      <td style="padding: 10px; text-align: center; color: #666;">x${item.quantity}</td>
+      <td style="padding: 10px; text-align: right; color: #666;">₦${(item.price * item.quantity).toLocaleString()}</td>
+    </tr>
+  `).join('');
+
+  return {
+    subject: `📦 Order Confirmed! Order ID: ${orderId}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+        <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h2 style="color: #333; margin-bottom: 20px;">✅ Your Order is Confirmed!</h2>
+          
+          <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            Thank you for your order, ${customerName}!
+          </p>
+          
+          <div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="margin: 0; color: #333;"><strong>Order ID:</strong> ${orderId}</p>
+            <p style="margin: 5px 0; color: #333;"><strong>Order Date:</strong> ${new Date().toLocaleDateString()}</p>
+            <p style="margin: 5px 0; color: #333;"><strong>Status:</strong> <span style="color: #27ae60; font-weight: bold;">Pending</span></p>
+          </div>
+          
+          <h3 style="color: #333; margin-top: 20px; margin-bottom: 10px;">Order Items:</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 2px solid #333;">
+                <th style="padding: 10px; text-align: left; color: #333;">Product</th>
+                <th style="padding: 10px; text-align: center; color: #333;">Quantity</th>
+                <th style="padding: 10px; text-align: right; color: #333;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHTML}
+            </tbody>
+          </table>
+          
+          <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px;">
+            <p style="margin: 5px 0; color: #666; text-align: right;">
+              <strong>Subtotal:</strong> ₦${subtotal.toLocaleString()}
+            </p>
+            <p style="margin: 5px 0; color: #666; text-align: right;">
+              <strong>Delivery Fee:</strong> ₦${deliveryFee.toLocaleString()}
+            </p>
+            <p style="margin: 10px 0 0 0; color: #333; text-align: right; font-size: 18px; border-top: 2px solid #333; padding-top: 10px;">
+              <strong>Total:</strong> ₦${total.toLocaleString()}
+            </p>
+          </div>
+          
+          <p style="color: #666; font-size: 14px; margin-top: 20px;">
+            We will update you about your order status via email. Check your inbox frequently for delivery updates.
+          </p>
+          
+          <p style="color: #999; font-size: 12px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+            For any questions about your order, please contact us. This is an automated message.
+          </p>
+        </div>
+      </div>
+    `,
+    text: `Thank you for your order!\n\nOrder ID: ${orderId}\nOrder Date: ${new Date().toLocaleDateString()}\n\nItems:\n${items.map(item => `${item.productName} x${item.quantity} - ₦${(item.price * item.quantity).toLocaleString()}`).join('\n')}\n\nSubtotal: ₦${subtotal.toLocaleString()}\nDelivery Fee: ₦${deliveryFee.toLocaleString()}\nTotal: ₦${total.toLocaleString()}\n\nBest regards,\nAmoo Store Team`
+  };
+}
+
+// Email template for order status update
+function getOrderStatusUpdateEmailTemplate(customerName, orderId, status, items) {
+  const statusMessages = {
+    pending: { message: 'Your order is being processed', icon: '⏳', color: '#f39c12' },
+    confirmed: { message: 'Your order has been confirmed', icon: '✅', color: '#27ae60' },
+    processing: { message: 'Your order is being packaged', icon: '📦', color: '#3498db' },
+    shipped: { message: 'Your order has been shipped', icon: '🚚', color: '#9b59b6' },
+    delivered: { message: 'Your order has been delivered', icon: '🎉', color: '#27ae60' },
+    cancelled: { message: 'Your order has been cancelled', icon: '❌', color: '#e74c3c' }
+  };
+
+  const statusInfo = statusMessages[status] || { message: 'Your order status has been updated', icon: '📬', color: '#34495e' };
+
+  // Add product images to the status update email
+  const itemsDisplay = items && items.length > 0 ? `
+    <div style="margin-top: 20px;">
+      <h4 style="color: #333; margin-bottom: 15px;">Order Items:</h4>
+      <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+        ${items.map(item => `
+          <div style="flex: 1; min-width: 150px; text-align: center;">
+            ${item.productImage ? `<img src="${item.productImage}" alt="${item.productName}" style="width: 100%; max-width: 150px; height: 150px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">` : ''}
+            <p style="color: #333; font-size: 14px; margin: 10px 0 0 0; font-weight: bold;">${item.productName}</p>
+            <p style="color: #666; font-size: 12px; margin: 5px 0;">Qty: ${item.quantity}</p>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : '';
+
+  return {
+    subject: `${statusInfo.icon} Order Update: ${orderId} - ${status.toUpperCase()}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+        <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h2 style="color: #333; margin-bottom: 20px;">${statusInfo.icon} Order Status Update</h2>
+          
+          <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            Hi ${customerName},
+          </p>
+          
+          <div style="background-color: ${statusInfo.color}; padding: 20px; border-radius: 5px; margin: 20px 0; color: white;">
+            <h3 style="margin: 0; font-size: 18px;">${statusInfo.message}</h3>
+          </div>
+          
+          <div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="margin: 0; color: #333;"><strong>Order ID:</strong> ${orderId}</p>
+            <p style="margin: 10px 0 0 0; color: #333;"><strong>Current Status:</strong> <span style="font-weight: bold; color: ${statusInfo.color};">${status.toUpperCase()}</span></p>
+          </div>
+          
+          ${itemsDisplay}
+          
+          <p style="color: #666; font-size: 14px; line-height: 1.6; margin-top: 20px;">
+            We're keeping you updated every step of the way. If you need to check your order details, you can view them in your account on our website.
+          </p>
+          
+          <p style="color: #666; font-size: 14px; margin-top: 20px;">
+            Thank you for shopping with Amoo Store!
+          </p>
+          
+          <p style="color: #999; font-size: 12px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+            If you have any questions, please don't hesitate to reach out to us.
+          </p>
+        </div>
+      </div>
+    `,
+    text: `Order Status Update\n\nHi ${customerName},\n\n${statusInfo.message}\n\nOrder ID: ${orderId}\nStatus: ${status.toUpperCase()}\n\nThank you for shopping with Amoo Store!`
+  };
+}
+
+// Email template for admin registration
+function getAdminRegistrationEmailTemplate(adminName, adminEmail) {
+  return {
+    subject: '👨‍💼 Admin Account Created - Amoo Store',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+        <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h2 style="color: #333; margin-bottom: 20px;">👨‍💼 Admin Account Successfully Created</h2>
+          
+          <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            Welcome to the Amoo Store Admin Team, ${adminName}!
+          </p>
+          
+          <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            Your admin account has been successfully registered with our company system.
+          </p>
+          
+          <div style="background-color: #f0f0f0; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <h3 style="color: #333; margin-top: 0;">Account Details:</h3>
+            <p style="color: #666; margin: 5px 0;"><strong>Name:</strong> ${adminName}</p>
+            <p style="color: #666; margin: 5px 0;"><strong>Email:</strong> ${adminEmail}</p>
+            <p style="color: #666; margin: 5px 0;"><strong>Role:</strong> Administrator</p>
+          </div>
+          
+          <div style="background-color: #e8f4f8; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #3498db;">
+            <h3 style="color: #333; margin-top: 0;">Admin Responsibilities:</h3>
+            <ul style="color: #666; line-height: 1.8;">
+              <li>Manage product catalog and inventory</li>
+              <li>Process and track customer orders</li>
+              <li>Update order statuses and delivery information</li>
+              <li>Monitor customer support and inquiries</li>
+              <li>Generate sales reports and analytics</li>
+            </ul>
+          </div>
+          
+          <p style="color: #666; font-size: 14px; margin-top: 20px;">
+            You can now access the admin dashboard to manage the store operations. Use your registered email and password to log in.
+          </p>
+          
+          <p style="color: #999; font-size: 12px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+            If you did not request an admin account or have any questions, please contact the system administrator immediately.
+          </p>
+        </div>
+      </div>
+    `,
+    text: `Welcome to Amoo Store Admin Team!\n\nYour admin account has been successfully created.\n\nName: ${adminName}\nEmail: ${adminEmail}\nRole: Administrator\n\nYou can now access the admin dashboard to manage store operations.\n\nBest regards,\nAmoo Store Management`
+  };
+}
+
+// Send user registration email
+async function sendUserRegistrationEmail(userName, userEmail) {
+  try {
+    const emailTemplate = getUserRegistrationEmailTemplate(userName, userEmail);
+    const result = await transporter.sendMail({
+      from: process.env.EMAIL_USER || 'amoostore5@gmail.com',
+      to: userEmail,
+      subject: emailTemplate.subject,
+      html: emailTemplate.html,
+      text: emailTemplate.text
+    });
+    console.log('✅ Registration email sent to:', userEmail);
+    return result;
+  } catch (error) {
+    console.error('❌ Failed to send registration email:', error.message);
+    throw error;
+  }
+}
+
+// Send order confirmation email
+async function sendOrderConfirmationEmail(customerName, customerEmail, orderId, items, total, deliveryFee, subtotal) {
+  try {
+    const emailTemplate = getOrderConfirmationEmailTemplate(customerName, customerEmail, orderId, items, total, deliveryFee, subtotal);
+    const result = await transporter.sendMail({
+      from: process.env.EMAIL_USER || 'amoostore5@gmail.com',
+      to: customerEmail,
+      subject: emailTemplate.subject,
+      html: emailTemplate.html,
+      text: emailTemplate.text
+    });
+    console.log('✅ Order confirmation email sent to:', customerEmail);
+    return result;
+  } catch (error) {
+    console.error('❌ Failed to send order confirmation email:', error.message);
+    throw error;
+  }
+}
+
+// Send order status update email
+async function sendOrderStatusUpdateEmail(customerName, customerEmail, orderId, status, items) {
+  try {
+    const emailTemplate = getOrderStatusUpdateEmailTemplate(customerName, orderId, status, items);
+    const result = await transporter.sendMail({
+      from: process.env.EMAIL_USER || 'amoostore5@gmail.com',
+      to: customerEmail,
+      subject: emailTemplate.subject,
+      html: emailTemplate.html,
+      text: emailTemplate.text
+    });
+    console.log('✅ Order status update email sent to:', customerEmail);
+    return result;
+  } catch (error) {
+    console.error('❌ Failed to send order status email:', error.message);
+    throw error;
+  }
+}
+
+// Send admin registration email
+async function sendAdminRegistrationEmail(adminName, adminEmail) {
+  try {
+    const emailTemplate = getAdminRegistrationEmailTemplate(adminName, adminEmail);
+    const result = await transporter.sendMail({
+      from: process.env.EMAIL_USER || 'amoostore5@gmail.com',
+      to: adminEmail,
+      subject: emailTemplate.subject,
+      html: emailTemplate.html,
+      text: emailTemplate.text
+    });
+    console.log('✅ Admin registration email sent to:', adminEmail);
+    return result;
+  } catch (error) {
+    console.error('❌ Failed to send admin registration email:', error.message);
+    throw error;
+  }
+}
+
+// Email template for customer message/inquiry
+function getCustomerMessageEmailTemplate(senderName, senderEmail, subject, message) {
+  return {
+    subject: `📧 New Message from Customer: ${subject}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+        <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h2 style="color: #333; margin-bottom: 20px;">📧 New Customer Message</h2>
+          
+          <div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="margin: 5px 0; color: #333;"><strong>From:</strong> ${senderName}</p>
+            <p style="margin: 5px 0; color: #333;"><strong>Email:</strong> ${senderEmail}</p>
+            <p style="margin: 5px 0; color: #333;"><strong>Subject:</strong> ${subject}</p>
+          </div>
+          
+          <div style="background-color: #ffffff; padding: 20px; border-left: 4px solid #e0b347; margin: 20px 0;">
+            <h3 style="color: #333; margin-top: 0; margin-bottom: 10px;">Message:</h3>
+            <p style="color: #666; font-size: 15px; line-height: 1.8; white-space: pre-wrap;">${message}</p>
+          </div>
+          
+          <p style="color: #999; font-size: 12px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+            Please respond to this customer as soon as possible. Reply to: ${senderEmail}
+          </p>
+        </div>
+      </div>
+    `,
+    text: `New Customer Message\n\nFrom: ${senderName}\nEmail: ${senderEmail}\nSubject: ${subject}\n\nMessage:\n${message}\n\nPlease respond to this customer as soon as possible.`
+  };
+}
+
+// Send customer message to admin
+async function sendCustomerMessageEmail(senderName, senderEmail, subject, message, recipientEmail) {
+  try {
+    const emailTemplate = getCustomerMessageEmailTemplate(senderName, senderEmail, subject, message);
+    const result = await transporter.sendMail({
+      from: process.env.EMAIL_USER || 'amoostore5@gmail.com',
+      to: recipientEmail,
+      replyTo: senderEmail,
+      subject: emailTemplate.subject,
+      html: emailTemplate.html,
+      text: emailTemplate.text
+    });
+    console.log('✅ Customer message email sent to:', recipientEmail);
+    return result;
+  } catch (error) {
+    console.error('❌ Failed to send customer message email:', error.message);
+    throw error;
+  }
+}
+
+module.exports = {
+  sendUserRegistrationEmail,
+  sendOrderConfirmationEmail,
+  sendOrderStatusUpdateEmail,
+  sendAdminRegistrationEmail,
+  sendCustomerMessageEmail
+};

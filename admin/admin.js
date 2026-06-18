@@ -1,0 +1,834 @@
+const ADMIN_API = 'https://amoo-store-user.onrender.com';
+let adminSession = null;
+
+// DOM Elements
+const authModal = document.getElementById('auth-modal');
+const registerModal = document.getElementById('register-modal');
+const adminLoginForm = document.getElementById('admin-login-form');
+const adminRegisterForm = document.getElementById('admin-register-form');
+const switchToRegisterBtn = document.getElementById('switch-to-register');
+const switchToLoginBtn = document.getElementById('switch-to-login');
+const logoutBtn = document.querySelector('[data-logout]');
+const adminNameEl = document.getElementById('admin-name');
+const adminEmailEl = document.getElementById('admin-email');
+const navLinks = document.querySelectorAll('.nav-link');
+const pageSections = document.querySelectorAll('.page-section');
+const pageTitle = document.getElementById('page-title');
+const pageSubtitle = document.getElementById('page-subtitle');
+const productsListEl = document.getElementById('products-list');
+const productModal = document.getElementById('product-modal');
+const productForm = document.getElementById('product-form');
+const productModalTitle = document.getElementById('product-modal-title');
+const productModalClose = document.getElementById('product-modal-close');
+const productModalCancel = document.getElementById('product-modal-cancel');
+const orderDetailsModal = document.getElementById('order-details-modal');
+const orderDetailsClose = document.getElementById('order-details-close');
+const orderDetailsCloseBtn = document.getElementById('order-details-close-btn');
+const orderDetailsContent = document.getElementById('order-details-content');
+const orderDetailsTitle = document.getElementById('order-details-title');
+const sidebarToggle = document.getElementById('sidebar-toggle');
+const sidebarOverlay = document.getElementById('sidebar-overlay');
+const adminSidebar = document.querySelector('.admin-sidebar');
+
+let productsCache = [];
+let editingProductId = null;
+let ordersCache = [];
+
+// Page titles
+const pageTitles = {
+  dashboard: { title: 'AMOO STORE Dashboard', subtitle: 'Welcome to AMOO STORE Management' },
+  products: { title: 'AMOO STORE Products', subtitle: 'Manage your fashion collection' },
+  customers: { title: 'AMOO STORE Customers', subtitle: 'Manage all customers' },
+  orders: { title: 'AMOO STORE Orders', subtitle: 'Track and manage orders' },
+  inventory: { title: 'AMOO STORE Inventory', subtitle: 'Monitor stock levels' },
+  analytics: { title: 'AMOO STORE Analytics', subtitle: 'View sales reports' },
+  messages: { title: 'AMOO STORE Messages', subtitle: 'Send messages to customers' },
+  settings: { title: 'AMOO STORE Settings', subtitle: 'Store and account settings' }
+};
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+  checkAdminSession();
+  setupEventListeners();
+  loadDashboard();
+});
+
+function checkAdminSession() {
+  const stored = localStorage.getItem('adminSession');
+  if (stored) {
+    adminSession = JSON.parse(stored);
+    showDashboard();
+  } else {
+    showAuthModal();
+  }
+}
+
+function setupEventListeners() {
+  // Auth forms
+  adminLoginForm.addEventListener('submit', handleLogin);
+  adminRegisterForm.addEventListener('submit', handleRegister);
+  switchToRegisterBtn.addEventListener('click', () => {
+    authModal.hidden = true;
+    registerModal.hidden = false;
+  });
+  switchToLoginBtn.addEventListener('click', () => {
+    registerModal.hidden = true;
+    authModal.hidden = false;
+  });
+
+  // Sidebar navigation
+  navLinks.forEach((link) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const page = link.dataset.page;
+      navigateToPage(page);
+      closeSidebar();
+    });
+  });
+
+  // Logout
+  logoutBtn.addEventListener('click', handleLogout);
+
+  // Sidebar menu toggle
+  sidebarToggle.addEventListener('click', toggleSidebar);
+  sidebarOverlay.addEventListener('click', closeSidebar);
+
+  // Product management
+  document.getElementById('add-product-btn').addEventListener('click', () => openProductModal());
+  productsListEl.addEventListener('click', handleProductAction);
+  productForm.addEventListener('submit', saveProductChanges);
+  productModalClose.addEventListener('click', closeProductModal);
+  productModalCancel.addEventListener('click', closeProductModal);
+
+  // Order details modal
+  orderDetailsClose.addEventListener('click', closeOrderDetailsModal);
+  orderDetailsCloseBtn.addEventListener('click', closeOrderDetailsModal);
+  orderDetailsModal.addEventListener('click', (e) => {
+    if (e.target === orderDetailsModal) closeOrderDetailsModal();
+  });
+}
+
+function toggleSidebar() {
+  const isOpen = adminSidebar.classList.toggle('open');
+  sidebarOverlay.classList.toggle('visible', isOpen);
+}
+
+function closeSidebar() {
+  adminSidebar.classList.remove('open');
+  sidebarOverlay.classList.remove('visible');
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const formData = new FormData(adminLoginForm);
+  const email = formData.get('email');
+  const password = formData.get('password');
+
+  try {
+    const response = await fetch(`${ADMIN_API}/api/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      adminSession = { email, name: data.name, id: data.id };
+      localStorage.setItem('adminSession', JSON.stringify(adminSession));
+      adminLoginForm.reset();
+      showDashboard();
+    } else {
+      alert(data.error || 'Login failed');
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    alert('Connection error. Check if backend is running.');
+  }
+}
+
+async function handleRegister(e) {
+  e.preventDefault();
+  const formData = new FormData(adminRegisterForm);
+  const name = formData.get('name');
+  const email = formData.get('email');
+  const password = formData.get('password');
+
+  try {
+    const response = await fetch(`${ADMIN_API}/api/admin/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      document.getElementById('register-message').textContent = '✓ Account created! Please log in.';
+      setTimeout(() => {
+        registerModal.hidden = true;
+        authModal.hidden = false;
+        adminRegisterForm.reset();
+        document.getElementById('register-message').textContent = '';
+      }, 1500);
+    } else {
+      alert(data.error || 'Registration failed');
+    }
+  } catch (error) {
+    console.error('Register error:', error);
+    alert('Connection error. Check if backend is running.');
+  }
+}
+
+function handleLogout() {
+  adminSession = null;
+  localStorage.removeItem('adminSession');
+  authModal.hidden = false;
+  registerModal.hidden = true;
+  adminLoginForm.reset();
+  document.querySelector('.admin-container').style.display = 'none';
+}
+
+function showAuthModal() {
+  authModal.hidden = false;
+  registerModal.hidden = true;
+  document.querySelector('.admin-container').style.display = 'none';
+}
+
+function showDashboard() {
+  authModal.hidden = true;
+  registerModal.hidden = true;
+  document.querySelector('.admin-container').style.display = 'grid';
+  updateAdminInfo();
+}
+
+function updateAdminInfo() {
+  if (adminSession) {
+    adminNameEl.textContent = adminSession.name;
+    adminEmailEl.textContent = adminSession.email;
+  }
+}
+
+function navigateToPage(page) {
+  // Update active nav link
+  navLinks.forEach((link) => link.classList.remove('active'));
+  document.querySelector(`[data-page="${page}"]`).classList.add('active');
+
+  // Show active page
+  pageSections.forEach((section) => section.classList.remove('active'));
+  document.querySelector(`[data-page="${page}"].page-section`).classList.add('active');
+
+  // Update header
+  const pageInfo = pageTitles[page];
+  pageTitle.textContent = pageInfo.title;
+  pageSubtitle.textContent = pageInfo.subtitle;
+
+  // Load page-specific data
+  loadPageData(page);
+}
+
+async function loadPageData(page) {
+  switch (page) {
+    case 'products':
+      await loadProducts();
+      break;
+    case 'customers':
+      await loadCustomers();
+      break;
+    case 'orders':
+      await loadOrders();
+      break;
+    case 'inventory':
+      await loadInventory();
+      break;
+    case 'messages':
+      await loadCustomers();
+      break;
+  }
+}
+
+async function loadDashboard() {
+  try {
+    // Load products
+    const productsRes = await fetch(`${ADMIN_API}/api/products`);
+    const products = await productsRes.json();
+    document.getElementById('total-products').textContent = products.length;
+
+    // Load users
+    const usersRes = await fetch(`${ADMIN_API}/api/users`);
+    const users = await usersRes.json();
+    document.getElementById('total-customers').textContent = users.length;
+
+    // Calculate revenue
+    let revenue = 0;
+    products.forEach((p) => (revenue += p.price));
+    document.getElementById('total-revenue').textContent = `NGN ${revenue.toLocaleString()}`;
+  } catch (error) {
+    console.error('Error loading dashboard:', error);
+  }
+}
+
+async function loadProducts() {
+  try {
+    console.log('📦 Fetching products from Supabase...');
+    const response = await fetch(`${ADMIN_API}/api/products`);
+    const products = await response.json();
+    const list = document.getElementById('products-list');
+
+    if (products.length === 0) {
+      list.innerHTML = '<p>No products found</p>';
+      console.warn('⚠️ No products in Supabase');
+      return;
+    }
+
+    productsCache = products;
+    console.log(`✅ Loaded ${products.length} products from Supabase`);
+    list.innerHTML = products
+      .map(
+        (product) => `
+      <div class="product-card">
+        <img class="product-image" src="${product.image}" alt="${product.name}" />
+        <div class="product-details">
+          <div class="product-top">
+            <h3>${product.name}</h3>
+            <span class="product-price">NGN ${product.price.toLocaleString()}</span>
+          </div>
+          <div class="product-meta">
+            <span>📁 ${product.category}</span>
+            <span>🏷️ ${product.tag}</span>
+          </div>
+          <p class="product-description">${product.description}</p>
+          <div class="product-actions">
+            <button class="btn btn-secondary edit-product-btn" data-id="${product.id}">Edit</button>
+            <button class="btn btn-danger delete-product-btn" data-id="${product.id}">Delete</button>
+          </div>
+        </div>
+      </div>
+    `
+      )
+      .join('');
+  } catch (error) {
+    console.error('❌ Error loading products from Supabase:', error);
+    document.getElementById('products-list').innerHTML = '<p>Error loading products</p>';
+  }
+}
+
+function openProductModal(product = null) {
+  editingProductId = product ? product.id : null;
+  productModalTitle.textContent = product ? 'Edit Product' : 'Add Product';
+  productForm.reset();
+
+  if (product) {
+    document.getElementById('product-name').value = product.name;
+    document.getElementById('product-category').value = product.category;
+    document.getElementById('product-price').value = product.price;
+    document.getElementById('product-tag').value = product.tag;
+    document.getElementById('product-image').value = product.image;
+    document.getElementById('product-description').value = product.description;
+  }
+
+  productModal.hidden = false;
+}
+
+function closeProductModal() {
+  productModal.hidden = true;
+  productForm.reset();
+  editingProductId = null;
+}
+
+async function handleProductAction(event) {
+  const editBtn = event.target.closest('.edit-product-btn');
+  const deleteBtn = event.target.closest('.delete-product-btn');
+  
+  if (editBtn) {
+    const productId = editBtn.dataset.id;
+    const product = productsCache.find((item) => item.id === productId);
+    if (product) {
+      openProductModal(product);
+    }
+  } else if (deleteBtn) {
+    const productId = deleteBtn.dataset.id;
+    const product = productsCache.find((item) => item.id === productId);
+    
+    if (product && confirm(`Are you sure you want to delete "${product.name}"?`)) {
+      try {
+        const response = await fetch(`${ADMIN_API}/api/products/${encodeURIComponent(productId)}`, {
+          method: 'DELETE'
+        });
+        
+        if (response.ok) {
+          alert('Product deleted successfully.');
+          await loadProducts();
+        } else {
+          const result = await response.json();
+          alert(result.error || 'Failed to delete product.');
+        }
+      } catch (error) {
+        console.error('Product delete error:', error);
+        alert('Connection error. Check if backend is running.');
+      }
+    }
+  }
+}
+
+async function saveProductChanges(event) {
+  event.preventDefault();
+
+  const formData = new FormData(productForm);
+  const productData = {
+    name: formData.get('name'),
+    category: formData.get('category'),
+    price: parseFloat(formData.get('price')),
+    tag: formData.get('tag'),
+    image: formData.get('image'),
+    description: formData.get('description')
+  };
+
+  if (!productData.name || !productData.category || !productData.image || isNaN(productData.price)) {
+    alert('Please fill in all required fields.');
+    return;
+  }
+
+  try {
+    const url = editingProductId ? `${ADMIN_API}/api/products/${encodeURIComponent(editingProductId)}` : `${ADMIN_API}/api/products`;
+    const method = editingProductId ? 'PUT' : 'POST';
+
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(productData)
+    });
+
+    const rawText = await response.text();
+    let result = {};
+    try {
+      result = rawText ? JSON.parse(rawText) : {};
+    } catch (jsonError) {
+      console.error('Invalid JSON response from server:', rawText);
+      alert('Server returned an unexpected response. Check backend logs.');
+      return;
+    }
+
+    if (!response.ok) {
+      alert(result.error || rawText || 'Could not save product.');
+      return;
+    }
+
+    closeProductModal();
+    await loadProducts();
+    await loadDashboard();
+    alert(editingProductId ? 'Product saved successfully.' : 'Product added successfully.');
+  } catch (error) {
+    console.error('Product save error:', error);
+    alert('Connection error. Check if backend is running.');
+  }
+}
+
+async function loadCustomers() {
+  try {
+    const response = await fetch(`${ADMIN_API}/api/users`);
+    const customers = await response.json();
+    const list = document.getElementById('customers-list');
+
+    if (customers.length === 0) {
+      list.innerHTML = '<p>No customers registered yet</p>';
+      return;
+    }
+
+    list.innerHTML = customers
+      .map(
+        (customer) => `
+      <div class="item-card">
+        <h3>${customer.name}</h3>
+        <div class="item-meta">
+          <span>📧 ${customer.email}</span>
+          <span>📱 ${customer.phone}</span>
+          <span>🌍 ${customer.country || 'N/A'}</span>
+        </div>
+      </div>
+    `
+      )
+      .join('');
+  } catch (error) {
+    console.error('Error loading customers:', error);
+    document.getElementById('customers-list').innerHTML = '<p>Error loading customers</p>';
+  }
+}
+
+async function loadOrders() {
+  try {
+    // Fetch orders from Supabase (latest data with status from admin)
+    const response = await fetch(`${ADMIN_API}/api/orders-from-supabase`);
+    
+    let orders = [];
+    if (response.ok) {
+      const data = await response.json();
+      orders = data.orders || [];
+      console.log('✅ Orders fetched from Supabase:', orders.length);
+    } else {
+      // Fallback to local API if Supabase fetch fails
+      console.log('⚠️ Supabase fetch failed, using local API');
+      const localResponse = await fetch(`${ADMIN_API}/api/orders`);
+      orders = await localResponse.json();
+    }
+
+    const list = document.getElementById('orders-list');
+
+    if (!orders || orders.length === 0) {
+      list.innerHTML = '<p>No orders yet</p>';
+      document.getElementById('total-orders').textContent = '0';
+      return;
+    }
+
+    ordersCache = orders;
+    document.getElementById('total-orders').textContent = orders.length;
+    
+    // Calculate total revenue
+    const totalRevenue = orders.reduce((sum, order) => sum + (order.total || 0), 0);
+    document.getElementById('total-revenue').textContent = `₦${totalRevenue.toLocaleString()}`;
+
+    list.innerHTML = orders.map(order => renderAdminOrderCard(order)).join('');
+  } catch (error) {
+    console.error('Error loading orders:', error);
+    document.getElementById('orders-list').innerHTML = '<p>Error loading orders</p>';
+  }
+}
+
+function renderAdminOrderCard(order) {
+  const createdDate = new Date(order.created_at || order.createdAt).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+
+  const customerName = order.customer_name || order.customerName || 'Customer';
+  const customerEmail = order.customer_email || order.customerEmail || '';
+  const phone = order.phone || '';
+  const total = order.total || 0;
+  const itemCount = order.items ? order.items.length : 0;
+
+  return `
+    <div class="admin-order-card">
+      <div class="order-header-admin">
+        <div>
+          <strong>Order #${order.id}</strong>
+          <span class="order-status-badge" data-status="${order.status}">${order.status.toUpperCase()}</span>
+        </div>
+        <div class="order-date">${createdDate}</div>
+      </div>
+      <div class="order-customer-info">
+        <strong>${customerName}</strong>
+        <span>${customerEmail}</span>
+        <span>${phone}</span>
+      </div>
+      <div class="order-items-count">
+        <strong>${itemCount}</strong> item${itemCount > 1 ? 's' : ''} - <strong>₦${total.toLocaleString()}</strong>
+      </div>
+      <div class="order-actions">
+        <button class="btn btn-small btn-accept" onclick="updateOrderStatus(${order.id}, 'accepted')">✓ Accept</button>
+        <button class="btn btn-small btn-shipped" onclick="updateOrderStatus(${order.id}, 'shipped')">📦 Shipped</button>
+        <button class="btn btn-small btn-delivered" onclick="updateOrderStatus(${order.id}, 'delivered')">✔ Delivered</button>
+        <button class="btn btn-small btn-view" onclick="viewOrderDetails(${order.id})">👁 View</button>
+        <button class="btn btn-small btn-sync" onclick="syncOrderStatus(${order.id})">🔄 Sync</button>
+      </div>
+    </div>
+  `;
+}
+
+async function updateOrderStatus(orderId, status) {
+  try {
+    // Update in Supabase (preferred)
+    const response = await fetch(`${ADMIN_API}/api/orders/${orderId}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✅ Order updated in Supabase:', orderId, '→', status);
+      alert(`✅ Order #${orderId} updated to ${status.toUpperCase()}`);
+      loadOrders();
+      loadDashboard();
+    } else {
+      const error = await response.json();
+      console.error('❌ Error updating order:', error);
+      alert(`❌ Failed to update order: ${error.error}`);
+    }
+  } catch (error) {
+    console.error('❌ Error updating order:', error);
+    alert('❌ Connection error. Check if backend is running.');
+  }
+}
+
+// Sync order status from Supabase
+async function syncOrderStatus(orderId) {
+  try {
+    const response = await fetch(`${ADMIN_API}/api/orders/${orderId}/sync-status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✅ Order status synced from Supabase:', orderId, '→', data.status);
+      alert(`✅ Order synced! Latest status: ${data.status.toUpperCase()}`);
+      loadOrders();
+    } else {
+      const error = await response.json();
+      alert(`⚠️ ${error.error}`);
+    }
+  } catch (error) {
+    console.error('❌ Error syncing order:', error);
+    alert('❌ Sync failed. Check if backend is running.');
+  }
+}
+
+function viewOrderDetails(orderId) {
+  const order = ordersCache.find(o => o.id == orderId);
+  if (!order) {
+    alert('Order not found');
+    return;
+  }
+
+  orderDetailsTitle.textContent = `Order #${order.id}`;
+  
+  const createdDate = new Date(order.createdAt).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+
+  let itemsHTML = order.items.map(item => {
+    // Try to get image: first from stored productImage, then try to fetch product data
+    let imageUrl = item.productImage || '';
+    const imageHtml = imageUrl 
+      ? `<img src="${imageUrl}" alt="${item.productName}" class="item-image" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%2312192d%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2240%22 text-anchor=%22middle%22 dy=%22.3em%22%3E📦%3C/text%3E%3C/svg%3E'">` 
+      : `<div class="item-image-placeholder">📦</div>`;
+
+    return `
+      <div class="order-detail-item">
+        <div class="item-image-container">
+          ${imageUrl ? imageHtml : '<div class="item-image-placeholder">📦</div>'}
+        </div>
+        <div class="item-details">
+          <strong>${item.productName}</strong>
+          <p class="item-quantity">Quantity: ${item.quantity}</p>
+          <p class="item-price">₦${item.price.toLocaleString()} each</p>
+          <p class="item-total">Total: ₦${(item.price * item.quantity).toLocaleString()}</p>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  orderDetailsContent.innerHTML = `
+    <div class="order-info-grid">
+      <div class="info-section">
+        <h4>Order Information</h4>
+        <p><strong>Order ID:</strong> ${order.id}</p>
+        <p><strong>Date:</strong> ${createdDate}</p>
+        <p><strong>Status:</strong> <span class="order-status-badge" data-status="${order.status}">${order.status.toUpperCase()}</span></p>
+        <p><strong>Payment Method:</strong> ${order.paymentMethod === 'bank_transfer' ? 'Bank Transfer' : order.paymentMethod}</p>
+      </div>
+      <div class="info-section">
+        <h4>Customer Information</h4>
+        <p><strong>Name:</strong> ${order.customerName}</p>
+        <p><strong>Email:</strong> ${order.customerEmail}</p>
+        <p><strong>Phone:</strong> ${order.phone}</p>
+        <p><strong>Address:</strong> ${order.address}</p>
+      </div>
+    </div>
+
+    <div class="order-items-section">
+      <h4>Items Ordered</h4>
+      <div class="order-detail-items">
+        ${itemsHTML}
+      </div>
+    </div>
+
+    <div class="order-summary-section">
+      <div class="summary-row">
+        <span>Subtotal:</span>
+        <strong>₦${order.subtotal.toLocaleString()}</strong>
+      </div>
+      <div class="summary-row">
+        <span>Delivery Fee:</span>
+        <strong>₦${order.delivery.toLocaleString()}</strong>
+      </div>
+      <div class="summary-row total">
+        <span>Total:</span>
+        <strong>₦${order.total.toLocaleString()}</strong>
+      </div>
+    </div>
+  `;
+
+  orderDetailsModal.removeAttribute('hidden');
+}
+
+function closeOrderDetailsModal() {
+  orderDetailsModal.setAttribute('hidden', '');
+  orderDetailsContent.innerHTML = '';
+}
+
+async function loadInventory() {
+  try {
+    const response = await fetch(`${ADMIN_API}/api/products`);
+    const products = await response.json();
+    const list = document.getElementById('inventory-list');
+
+    if (products.length === 0) {
+      list.innerHTML = '<p>No products in inventory</p>';
+      return;
+    }
+
+    list.innerHTML = products
+      .map(
+        (product) => `
+      <div class="item-card">
+        <h3>${product.name}</h3>
+        <div class="item-meta">
+          <span>📦 Stock: ${Math.floor(Math.random() * 100)} units</span>
+          <span>📈 ${product.tag}</span>
+        </div>
+      </div>
+    `
+      )
+      .join('');
+  } catch (error) {
+    console.error('Error loading inventory:', error);
+    document.getElementById('inventory-list').innerHTML = '<p>Error loading inventory</p>';
+  }
+}
+
+// Load all customers for messaging
+async function loadCustomers() {
+  try {
+    const response = await fetch(`${ADMIN_API}/api/users`);
+    const users = await response.json();
+    displayCustomersList(users);
+  } catch (error) {
+    console.error('Error loading customers:', error);
+    document.getElementById('customers-list').innerHTML = '<p>Error loading customers</p>';
+  }
+}
+
+function displayCustomersList(users) {
+  const list = document.getElementById('customers-list');
+  
+  if (!users || users.length === 0) {
+    list.innerHTML = '<p style="color: #999; text-align: center;">No registered customers</p>';
+    return;
+  }
+
+  const customerEmails = users.map(user => user.email || '');
+  const validEmails = customerEmails.filter(email => email && email.includes('@'));
+
+  if (validEmails.length === 0) {
+    list.innerHTML = '<p style="color: #999; text-align: center;">No customer emails found</p>';
+    return;
+  }
+
+  list.innerHTML = `
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+      <strong style="color: #333;">Total Customers: ${validEmails.length}</strong>
+    </div>
+    ${validEmails
+      .map(
+        (email, index) => `
+      <div style="padding: 10px; background: white; border: 1px solid #eee; border-radius: 5px; margin-bottom: 10px; display: flex; align-items: center;">
+        <span style="color: #27ae60; margin-right: 10px;">✓</span>
+        <span style="color: #333; word-break: break-all;">${email}</span>
+      </div>
+    `
+      )
+      .join('')}
+  `;
+
+  // Store emails for message sending
+  window.customerEmails = validEmails;
+}
+
+// Handle message form submission
+document.getElementById('send-message-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  if (!window.customerEmails || window.customerEmails.length === 0) {
+    showMessageError('No customers to send message to');
+    return;
+  }
+
+  const subject = document.getElementById('msg-subject').value;
+  const message = document.getElementById('msg-content').value;
+
+  if (!subject || !message) {
+    showMessageError('Please fill in subject and message');
+    return;
+  }
+
+  const confirmSend = confirm(
+    `Send this message to ${window.customerEmails.length} customer(s)?\n\nSubject: ${subject}`
+  );
+
+  if (!confirmSend) return;
+
+  showMessageLoading(true);
+  hideMessageMessages();
+
+  try {
+    const response = await fetch(`${ADMIN_API}/api/send-message`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        emails: window.customerEmails,
+        subject,
+        message,
+        senderName: 'Amoo Store',
+        senderEmail: adminSession?.email || 'amoostore5@gmail.com'
+      })
+    });
+
+    if (response.ok) {
+      showMessageSuccess(
+        `✅ Message sent successfully to ${window.customerEmails.length} customer(s)!`
+      );
+      document.getElementById('send-message-form').reset();
+    } else {
+      const error = await response.json();
+      showMessageError(error.error || 'Failed to send message');
+    }
+  } catch (error) {
+    console.error('Error sending message:', error);
+    showMessageError('Connection error. Please try again.');
+  } finally {
+    showMessageLoading(false);
+  }
+});
+
+function showMessageSuccess(msg) {
+  const el = document.getElementById('message-success');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => {
+    el.style.display = 'none';
+  }, 5000);
+}
+
+function showMessageError(msg) {
+  const el = document.getElementById('message-error');
+  el.textContent = '❌ ' + msg;
+  el.style.display = 'block';
+  setTimeout(() => {
+    el.style.display = 'none';
+  }, 5000);
+}
+
+function hideMessageMessages() {
+  document.getElementById('message-success').style.display = 'none';
+  document.getElementById('message-error').style.display = 'none';
+}
+
+function showMessageLoading(show) {
+  const btn = document.querySelector('#send-message-form button[type="submit"]');
+  btn.disabled = show;
+  btn.textContent = show ? '⏳ Sending...' : '📤 Send Message to All Customers';
+}

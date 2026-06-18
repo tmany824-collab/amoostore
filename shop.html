@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Shop all products from AMOO STORE and add items to your cart." />
+  <title>AMOO STORE | Shop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-page="shop">
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-grid"></div>
+
+  <header class="site-header">
+    <a class="brand" href="index.html" aria-label="AMOO STORE home">
+      <span class="brand-mark">👔</span>
+      <span class="brand-text">
+        <strong>AMOO STORE</strong>
+        <small>Premium Fashion</small>
+      </span>
+    </a>
+
+    <button class="menu-button" type="button" aria-expanded="false" aria-controls="nav-links">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span class="sr-only">Open menu</span>
+    </button>
+
+    <nav class="nav" id="nav-links">
+      <a href="index.html#collections">Collections</a>
+      <a href="visit store.html">Store preview</a>
+      <a href="order.html">My Orders</a>
+      <a href="cart.html">Cart <span class="cart-count" data-cart-count>0</span></a>
+      <a href="cart.html" class="nav-cta">Open cart</a>
+    </nav>
+  </header>
+
+  <main class="page-shell" id="shop">
+    <section id="products" class="section reveal">
+      <div class="section-heading">
+        <p class="eyebrow">Products</p>
+        <h2>All products in one clean shopping space.</h2>
+        <p>Choose a category, search by style, and add the pieces you want to your cart.</p>
+      </div>
+
+      <div class="search-panel">
+        <div class="product-toolbar">
+          <input type="search" placeholder="Search clothing, couple wear, kids sets..." data-product-search />
+          <div class="category-pills" role="tablist" aria-label="Store filters">
+            <button class="pill-btn store-filter-btn active" type="button" data-filter="all">All</button>
+            <button class="pill-btn store-filter-btn" type="button" data-filter="men">Men</button>
+            <button class="pill-btn store-filter-btn" type="button" data-filter="women">Women</button>
+            <button class="pill-btn store-filter-btn" type="button" data-filter="couple">Couple</button>
+            <button class="pill-btn store-filter-btn" type="button" data-filter="kids">Kids</button>
+          </div>
+          <a class="button button-secondary" href="cart.html">Open cart</a>
+        </div>
+      </div>
+
+      <div class="product-grid" data-product-grid></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> Ademola Cloth House. Add products to cart and continue to checkout.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
