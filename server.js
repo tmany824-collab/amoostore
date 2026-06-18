@@ -569,9 +569,37 @@ app.post('/api/login', (req, res) => {
 });
 
 // GET all users (for admin/debugging - remove in production)
-app.get('/api/users', (req, res) => {
-  const users = readJSON(userFilePath);
-  res.json(users);
+app.get('/api/users', async (req, res) => {
+  try {
+    // Fetch users from Supabase
+    console.log('📦 Fetching users from Supabase...');
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('⚠️ Supabase fetch failed, using local data:', error.message);
+      // Fallback to local JSON
+      const users = readJSON(userFilePath);
+      res.json(users);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      console.log(`✅ Fetched ${data.length} users from Supabase`);
+      res.json(data);
+    } else {
+      console.log('⚠️ No users in Supabase, using local data');
+      const users = readJSON(userFilePath);
+      res.json(users);
+    }
+  } catch (error) {
+    console.error('❌ Error fetching users:', error.message);
+    // Fallback to local JSON
+    const users = readJSON(userFilePath);
+    res.json(users);
+  }
 });
 
 // Admin endpoints - use admin.user.json in main folder
