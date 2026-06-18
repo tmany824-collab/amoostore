@@ -674,9 +674,35 @@ app.get('/api/admin/users', (req, res) => {
 const ordersFilePath = path.join(__dirname, 'orders.json');
 
 // GET all orders
-app.get('/api/orders', (req, res) => {
-  const orders = readJSON(ordersFilePath);
-  res.json(orders);
+app.get('/api/orders', async (req, res) => {
+  try {
+    // Fetch from Supabase first
+    console.log('📦 Fetching orders from Supabase...');
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('⚠️ Supabase fetch failed, using local data:', error.message);
+      const orders = readJSON(ordersFilePath);
+      res.json(orders);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      console.log(`✅ Fetched ${data.length} orders from Supabase`);
+      res.json(data);
+    } else {
+      console.log('⚠️ No orders in Supabase, using local data');
+      const orders = readJSON(ordersFilePath);
+      res.json(orders);
+    }
+  } catch (error) {
+    console.error('❌ Error fetching orders:', error.message);
+    const orders = readJSON(ordersFilePath);
+    res.json(orders);
+  }
 });
 
 // GET orders by customer email
@@ -1031,18 +1057,83 @@ app.post('/api/send-message', async (req, res) => {
 });
 
 // Get all customer messages (admin endpoint)
-app.get('/api/messages', (req, res) => {
+app.get('/api/messages', async (req, res) => {
   try {
-    const messagesFilePath = path.join(__dirname, 'messages.json');
+    // Fetch messages from Supabase
+    console.log('📧 Fetching messages from Supabase...');
+    const { data, error } = await supabase
+      .from('messages')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('⚠️ Supabase fetch failed, using local data:', error.message);
+      // Fallback to local JSON
+      let messages = [];
+      const messagesFilePath = path.join(__dirname, 'messages.json');
+      if (fs.existsSync(messagesFilePath)) {
+        const data = fs.readFileSync(messagesFilePath, 'utf8');
+        messages = data ? JSON.parse(data) : [];
+      }
+      res.json(messages);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      console.log(`✅ Fetched ${data.length} messages from Supabase`);
+      res.json(data);
+    } else {
+      console.log('⚠️ No messages in Supabase, using local data');
+      let messages = [];
+      const messagesFilePath = path.join(__dirname, 'messages.json');
+      if (fs.existsSync(messagesFilePath)) {
+        const data = fs.readFileSync(messagesFilePath, 'utf8');
+        messages = data ? JSON.parse(data) : [];
+      }
+      res.json(messages);
+    }
+  } catch (error) {
+    console.error('❌ Error fetching messages:', error.message);
     let messages = [];
+    const messagesFilePath = path.join(__dirname, 'messages.json');
     if (fs.existsSync(messagesFilePath)) {
       const data = fs.readFileSync(messagesFilePath, 'utf8');
       messages = data ? JSON.parse(data) : [];
     }
     res.json(messages);
+  }
+});
+
+// GET all registered user emails
+app.get('/api/registered-emails', async (req, res) => {
+  try {
+    console.log('📧 Fetching registered user emails from Supabase...');
+    const { data, error } = await supabase
+      .from('users')
+      .select('email, name')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.warn('⚠️ Supabase fetch failed:', error.message);
+      const users = readJSON(userFilePath);
+      const emails = users.map(u => ({ email: u.email, name: u.name }));
+      res.json(emails);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      console.log(`✅ Fetched ${data.length} registered emails from Supabase`);
+      res.json(data);
+    } else {
+      const users = readJSON(userFilePath);
+      const emails = users.map(u => ({ email: u.email, name: u.name }));
+      res.json(emails);
+    }
   } catch (error) {
-    console.error('❌ Error fetching messages:', error);
-    res.status(500).json({ error: error.message });
+    console.error('❌ Error fetching emails:', error.message);
+    const users = readJSON(userFilePath);
+    const emails = users.map(u => ({ email: u.email, name: u.name }));
+    res.json(emails);
   }
 });
 
