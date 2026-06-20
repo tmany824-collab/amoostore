@@ -280,6 +280,67 @@ function getAdminRegistrationEmailTemplate(adminName, adminEmail) {
   };
 }
 
+// Get rider registration email template
+function getRiderRegistrationEmailTemplate(riderName, riderEmail, vehicleType, licensePlate) {
+  return {
+    subject: '🏍️ Welcome to Amoo Store - Rider Account Created',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
+        <div style="background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h2 style="color: #FF6B35; margin-bottom: 20px;">🏍️ Welcome to Amoo Store Delivery Team!</h2>
+          
+          <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            Hi ${riderName},
+          </p>
+          
+          <p style="color: #666; font-size: 16px; line-height: 1.6;">
+            Congratulations! Your rider account has been successfully registered with Amoo Store. You are now ready to start accepting and delivering orders.
+          </p>
+          
+          <div style="background-color: #f0f0f0; padding: 20px; border-radius: 5px; margin: 20px 0;">
+            <h3 style="color: #333; margin-top: 0;">Your Account Details:</h3>
+            <p style="color: #666; margin: 5px 0;"><strong>Name:</strong> ${riderName}</p>
+            <p style="color: #666; margin: 5px 0;"><strong>Email:</strong> ${riderEmail}</p>
+            <p style="color: #666; margin: 5px 0;"><strong>Vehicle Type:</strong> ${vehicleType}</p>
+            <p style="color: #666; margin: 5px 0;"><strong>License Plate:</strong> ${licensePlate}</p>
+          </div>
+          
+          <div style="background-color: #fff3cd; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #FF6B35;">
+            <h3 style="color: #333; margin-top: 0;">🚀 Getting Started:</h3>
+            <ol style="color: #666; line-height: 1.8;">
+              <li>Log in to your rider dashboard with your email and password</li>
+              <li>Update your profile and verification documents</li>
+              <li>Go online to start receiving delivery orders</li>
+              <li>Accept orders and complete deliveries on time</li>
+              <li>Build your rating and earnings</li>
+            </ol>
+          </div>
+          
+          <div style="background-color: #e8f5e9; padding: 20px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #28a745;">
+            <h3 style="color: #333; margin-top: 0;">✅ Why Join Amoo Store Riders:</h3>
+            <ul style="color: #666; line-height: 1.8;">
+              <li>Flexible working hours - work when you want</li>
+              <li>Competitive earnings per delivery</li>
+              <li>Real-time order notifications</li>
+              <li>Professional support team</li>
+              <li>Growth opportunities based on performance</li>
+            </ul>
+          </div>
+          
+          <p style="color: #666; font-size: 14px; margin-top: 20px;">
+            You can now log in to your dashboard and start accepting orders. For any questions or support, contact our rider support team.
+          </p>
+          
+          <p style="color: #999; font-size: 12px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+            If you did not create this account or have any concerns, please contact us immediately.
+          </p>
+        </div>
+      </div>
+    `,
+    text: `Welcome to Amoo Store Delivery Team!\n\nYour rider account has been successfully created.\n\nName: ${riderName}\nEmail: ${riderEmail}\nVehicle: ${vehicleType}\nLicense Plate: ${licensePlate}\n\nYou can now log in to your rider dashboard to start accepting orders.\n\nBest regards,\nAmoo Store Management`
+  };
+}
+
 // Send user registration email
 async function sendUserRegistrationEmail(userName, userEmail) {
   try {
@@ -348,6 +409,24 @@ async function sendAdminRegistrationEmail(adminName, adminEmail) {
     return result;
   } catch (error) {
     console.error('❌ Failed to send admin registration email:', error.message);
+    throw error;
+  }
+}
+
+// Send rider registration email
+async function sendRiderRegistrationEmail(riderName, riderEmail, vehicleType, licensePlate) {
+  try {
+    const emailTemplate = getRiderRegistrationEmailTemplate(riderName, riderEmail, vehicleType, licensePlate);
+    const result = await sendEmailViaBrevo(
+      riderEmail,
+      emailTemplate.subject,
+      emailTemplate.html,
+      emailTemplate.text
+    );
+    console.log('✅ Rider registration email sent to:', riderEmail);
+    return result;
+  } catch (error) {
+    console.error('❌ Failed to send rider registration email:', error.message);
     throw error;
   }
 }
@@ -497,6 +576,7 @@ module.exports = {
   sendOrderConfirmationEmail,
   sendOrderStatusUpdateEmail,
   sendAdminRegistrationEmail,
+  sendRiderRegistrationEmail,
   sendCustomerMessageEmail,
   sendAdminOrderNotification,
   sendAdminMessageNotification
