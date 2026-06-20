@@ -1,0 +1,10 @@
+# API redirects
+/api/*                                      https://amoostore.onrender.com/api/:splat  200  !
+
+# Admin routes
+/admin                                      /admin/admin.html                          200
+/admin/*                                    /admin/:splat                              200
+
+# SPA routing for index - only for routes without file extensions
+/*                                          /index.html                                200
+
