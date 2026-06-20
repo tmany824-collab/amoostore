@@ -20,9 +20,15 @@ function initializeApp() {
     const riderId = localStorage.getItem('riderId');
     const riderToken = localStorage.getItem('riderToken');
     
+    // Hide both modals first
+    document.getElementById('registrationModal').classList.remove('show');
+    document.getElementById('loginModal').classList.remove('show');
+    
     if (!riderId || !riderToken) {
+        // No session - show registration modal
         showRegistrationModal();
     } else {
+        // Session exists - load rider data and show dashboard
         loadRiderData();
         loadAvailableOrders();
     }
@@ -143,6 +149,8 @@ async function handleRegistration(e) {
     
     const errorElement = document.getElementById('regError');
     const successElement = document.getElementById('regSuccess');
+    const registrationForm = document.getElementById('registrationForm');
+    
     errorElement.textContent = '';
     successElement.textContent = '';
 
@@ -188,6 +196,9 @@ async function handleRegistration(e) {
         localStorage.setItem('riderId', data.riderId);
         localStorage.setItem('riderToken', data.token);
         localStorage.setItem('riderEmail', formData.email);
+        
+        // Clear form
+        registrationForm.reset();
 
         setTimeout(() => {
             location.reload();
@@ -206,6 +217,7 @@ async function handleLogin(e) {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
     const errorElement = document.getElementById('loginError');
+    const loginForm = document.getElementById('loginForm');
     errorElement.textContent = '';
 
     try {
@@ -218,7 +230,14 @@ async function handleLogin(e) {
         const data = await response.json();
 
         if (!response.ok) {
-            errorElement.textContent = data.error || 'Login failed';
+            // Improve error message
+            if (data.error && data.error.toLowerCase().includes('password')) {
+                errorElement.textContent = '❌ Incorrect password';
+            } else if (data.error && (data.error.toLowerCase().includes('email') || data.error.toLowerCase().includes('not found'))) {
+                errorElement.textContent = '❌ Email not registered';
+            } else {
+                errorElement.textContent = '❌ ' + (data.error || 'Login failed');
+            }
             return;
         }
 
@@ -226,10 +245,16 @@ async function handleLogin(e) {
         localStorage.setItem('riderToken', data.token);
         localStorage.setItem('riderEmail', email);
 
+        // Clear form
+        loginForm.reset();
+        
+        // Hide login modal
         document.getElementById('loginModal').classList.remove('show');
+        document.getElementById('registrationModal').classList.remove('show');
+        
         loadRiderData();
         loadAvailableOrders();
-        showNotification('Logged in successfully!', 'success');
+        showNotification('✅ Logged in successfully!', 'success');
 
     } catch (error) {
         console.error('Login error:', error);
@@ -238,11 +263,29 @@ async function handleLogin(e) {
 }
 
 function logout() {
+    // Clear all session data
     localStorage.removeItem('riderId');
     localStorage.removeItem('riderToken');
     localStorage.removeItem('riderEmail');
+    
+    // Clear riderData
+    riderData = null;
+    orders = [];
+    
+    // Hide all modals and clear forms
+    document.getElementById('loginModal').classList.remove('show');
+    document.getElementById('registrationModal').classList.remove('show');
+    document.getElementById('loginForm').reset();
+    document.getElementById('registrationForm').reset();
+    
+    // Clear error messages
+    document.getElementById('loginError').textContent = '';
+    document.getElementById('regError').textContent = '';
+    document.getElementById('regSuccess').textContent = '';
+    
+    // Show registration modal
     showRegistrationModal();
-    showNotification('Logged out successfully', 'info');
+    showNotification('👋 Logged out successfully', 'info');
 }
 
 // ===== LOAD RIDER DATA =====
