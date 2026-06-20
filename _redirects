@@ -5,6 +5,10 @@
 /admin                                      /admin/admin.html                          200
 /admin/*                                    /admin/:splat                              200
 
+# Rider routes
+/rider                                      /rider-web/rider.html                      200
+/rider/*                                    /rider-web/:splat                          200
+
 # SPA routing for index - only for routes without file extensions
 /*                                          /index.html                                200
 
