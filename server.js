@@ -2045,15 +2045,38 @@ app.post('/api/notify-riders-order', async (req, res) => {
   }
 
   try {
-    console.log('📂 Reading orders from:', ordersFilePath);
-    const orders = readJSON(ordersFilePath);
-    console.log('📊 Total orders in file:', orders.length);
-    console.log('🔍 Looking for order with ID:', orderId);
-    const order = orders.find((o) => o.id == orderId);
-    console.log('✅ Order found:', order ? 'YES' : 'NO');
+    console.log('📂 Reading orders from Supabase first...');
+    let order = null;
+    
+    // Try Supabase first
+    try {
+      const { data: supabaseOrder, error: supabaseError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .single();
+      
+      if (!supabaseError && supabaseOrder) {
+        order = supabaseOrder;
+        console.log('✅ Order found in Supabase');
+      }
+    } catch (e) {
+      console.log('⚠️ Supabase query failed, trying JSON file');
+    }
+    
+    // Fallback to JSON if not found in Supabase
+    if (!order) {
+      console.log('📂 Reading orders from JSON file: /opt/render/project/src/orders.json');
+      const orders = readJSON(ordersFilePath);
+      console.log('📊 Total orders in JSON file:', orders.length);
+      order = orders.find((o) => o.id == orderId);
+      if (order) {
+        console.log('✅ Order found in JSON file');
+      }
+    }
 
     if (!order) {
-      console.log('❌ Order not found - returning 404');
+      console.log('❌ Order not found in Supabase or JSON - returning 404');
       return res.status(404).json({ error: 'Order not found' });
     }
 
